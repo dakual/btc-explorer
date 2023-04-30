@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  php:
+    container_name: php
+    build:
+      context: .
+      dockerfile: ./conf/php/Dockerfile
+    command: php -S 0.0.0.0:8080 -t /app/public
+    image: php
+    volumes:
+      - ./app:/app
+    ports:
+      - '8080:8080'
+
+  composer:
+    image: composer
+    container_name: composer
+    volumes:
+      - "./app:/app"
+    command: install
+    depends_on:
+      - php
+
+  bitcoind:
+    container_name: bitcoind
+    build:
+      context: .
+      dockerfile: ./conf/bitcoind/Dockerfile
+    image: bitcoind
+    ports:
+      - '8332:8332'
+      - '18332:18332'
+    volumes:
+      - /Users/daghan/bitcoin/testnet3:/root/bitcoin/data/testnet3
+
+  electrumx:
+    container_name: electrumx
+    build:
+      context: .
+      dockerfile: ./conf/electrumx/Dockerfile
+    image: electrumx
+    environment:
+      - DAEMON_URL=http://admin:admin@bitcoind:8332
+      - COIN=BitcoinSegwit
+      - NET=testnet
+      - REORG_LIMIT=0
+    ports:
+      - '50001:50001'
+      - '50002:50002'
+      - '50004:50004'
+      - '8000:8000'
+    volumes:
+      - /Users/daghan/electrumx:/data
+    depends_on:
+      - bitcoind
