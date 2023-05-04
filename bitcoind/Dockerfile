@@ -22,5 +22,6 @@ RUN mkdir /root/bitcoin/data
 
 EXPOSE 8332 18332
 
+
 # start
 CMD ["bash", "-c", "/root/bitcoin/bin/bitcoind -conf=/root/bitcoin.conf -datadir=/root/bitcoin/data"]
